@@ -101,6 +101,9 @@ int main(void)
   for(int i=0; i<BUFFER_SIZE; i++) command[i]=0;
   command_idx = 0;
   is_adc_ready = false;
+  is_raw = false;
+  is_avg = false;
+  is_rnd = false;
 
   /* USER CODE END 1 */
 
@@ -126,6 +129,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
+
   STATE = APP_WAIT_REQUEST;
   if(HAL_UARTEx_ReceiveToIdle_IT(&huart2,input_buffer,sizeof(input_buffer))!=HAL_OK)
   {
@@ -156,6 +160,7 @@ int main(void)
       break;
 
     case APP_LISTENING:
+    //DMA conversion is not continuous, must be called every cycle
     HAL_ADC_Start_DMA(&hadc1, &Analog_Hall, 1);
     //READ DIGITAL
     //APPLY FILTER
@@ -176,6 +181,7 @@ int main(void)
       break;
 
     case APP_ERROR:
+    HAL_UART_Transmit(&huart2,"ERROR\r\n",8,30);
       break;
     
     default:
@@ -392,23 +398,23 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+//to know that the ADC conversion is over
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
   is_adc_ready = true;
 }
 
+// used to set the digital hall value
 void HAL_GPIO_EXTI_Callback (uint16_t GPIO_Pin){
   if(GPIO_Pin == GPIO_PIN_7){
     Digital_Hall = HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_7) == GPIO_PIN_RESET ? 0 : 1;
   }
-  //HAL_GPIO_TogglePin(LD2_GPIO_Port,LD2_Pin);
-  //Digital_Hall = Digital_Hall==1 ? 0 : 1;
   
 }
 
 //
-// used for serial input from terminal
+// used for serial input from terminal, it works whether input is sent all at once
+// or char by char like on a terminal
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
-  if(huart->Instance != USART2) return;
 
   bool has_ended = false;
 
@@ -435,7 +441,6 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
         is_bad = true;
       }
       command_idx = 0;
-      //for(int i=0; i<BUFFER_SIZE; i++) command[i]=0;
       if(!is_bad) has_ended = true;
       break;
 
@@ -448,6 +453,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
     } // else ignore
   }
 
+  //if no terminating char (\0,\n,\r) is sent nor command is incorrect, listen again
   if(!has_ended){
     HAL_UARTEx_ReceiveToIdle_IT(huart, input_buffer,BUFFER_SIZE);
   }
