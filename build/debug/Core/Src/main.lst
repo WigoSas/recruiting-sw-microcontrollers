@@ -1,4 +1,4 @@
-ARM GAS  /tmp/ccBmS00B.s 			page 1
+ARM GAS  /tmp/ccQK8XZ3.s 			page 1
 
 
    1              		.cpu cortex-m4
@@ -58,7 +58,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
   29:Core/Src/main.c **** /* USER CODE END Includes */
   30:Core/Src/main.c **** 
   31:Core/Src/main.c **** /* Private typedef -----------------------------------------------------------*/
-ARM GAS  /tmp/ccBmS00B.s 			page 2
+ARM GAS  /tmp/ccQK8XZ3.s 			page 2
 
 
   32:Core/Src/main.c **** /* USER CODE BEGIN PTD */
@@ -118,7 +118,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
   86:Core/Src/main.c **** /* USER CODE END 0 */
   87:Core/Src/main.c **** 
   88:Core/Src/main.c **** /**
-ARM GAS  /tmp/ccBmS00B.s 			page 3
+ARM GAS  /tmp/ccQK8XZ3.s 			page 3
 
 
   89:Core/Src/main.c ****   * @brief  The application entry point.
@@ -178,7 +178,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  143:Core/Src/main.c ****     }
  144:Core/Src/main.c **** 
  145:Core/Src/main.c ****     switch (STATE)
-ARM GAS  /tmp/ccBmS00B.s 			page 4
+ARM GAS  /tmp/ccQK8XZ3.s 			page 4
 
 
  146:Core/Src/main.c ****     {
@@ -197,7 +197,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  159:Core/Src/main.c ****     while(!is_adc_ready);
  160:Core/Src/main.c ****     char buf[50] = {0};
  161:Core/Src/main.c ****     snprintf(buf,50,"%lu\t%lu\n",Analog_Hall,Digital_Hall);
- 162:Core/Src/main.c ****     HAL_Delay(50);
+ 162:Core/Src/main.c ****     HAL_Delay(5);
  163:Core/Src/main.c ****     HAL_UART_Transmit(&huart2,buf,strlen(buf),20);
  164:Core/Src/main.c ****     is_adc_ready = false;
  165:Core/Src/main.c ****       break;
@@ -238,7 +238,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  200:Core/Src/main.c ****   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
  201:Core/Src/main.c **** 
  202:Core/Src/main.c ****   /** Initializes the RCC Oscillators according to the specified parameters
-ARM GAS  /tmp/ccBmS00B.s 			page 5
+ARM GAS  /tmp/ccQK8XZ3.s 			page 5
 
 
  203:Core/Src/main.c ****   * in the RCC_OscInitTypeDef structure.
@@ -298,7 +298,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  257:Core/Src/main.c ****   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
  258:Core/Src/main.c ****   hadc1.Init.ScanConvMode = DISABLE;
  259:Core/Src/main.c ****   hadc1.Init.ContinuousConvMode = DISABLE;
-ARM GAS  /tmp/ccBmS00B.s 			page 6
+ARM GAS  /tmp/ccQK8XZ3.s 			page 6
 
 
  260:Core/Src/main.c ****   hadc1.Init.DiscontinuousConvMode = DISABLE;
@@ -358,7 +358,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  314:Core/Src/main.c ****   /* USER CODE BEGIN USART2_Init 2 */
  315:Core/Src/main.c **** 
  316:Core/Src/main.c ****   /* USER CODE END USART2_Init 2 */
-ARM GAS  /tmp/ccBmS00B.s 			page 7
+ARM GAS  /tmp/ccQK8XZ3.s 			page 7
 
 
  317:Core/Src/main.c **** 
@@ -418,7 +418,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  352:Core/Src/main.c ****   __HAL_RCC_GPIOC_CLK_ENABLE();
   47              		.loc 1 352 3 is_stmt 1 view .LVU3
   48              	.LBB4:
-ARM GAS  /tmp/ccBmS00B.s 			page 8
+ARM GAS  /tmp/ccQK8XZ3.s 			page 8
 
 
   49              		.loc 1 352 3 view .LVU4
@@ -478,7 +478,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  100              		.loc 1 355 3 view .LVU23
  101 0050 1A6B     		ldr	r2, [r3, #48]
  102 0052 42F00202 		orr	r2, r2, #2
-ARM GAS  /tmp/ccBmS00B.s 			page 9
+ARM GAS  /tmp/ccQK8XZ3.s 			page 9
 
 
  103 0056 1A63     		str	r2, [r3, #48]
@@ -538,7 +538,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  143              		.loc 1 369 3 is_stmt 1 view .LVU39
  144              		.loc 1 369 24 is_stmt 0 view .LVU40
  145 008c 0794     		str	r4, [sp, #28]
-ARM GAS  /tmp/ccBmS00B.s 			page 10
+ARM GAS  /tmp/ccQK8XZ3.s 			page 10
 
 
  370:Core/Src/main.c ****   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -598,7 +598,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  384:Core/Src/main.c ****   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
  186              		.loc 1 384 3 view .LVU54
  187 00c6 2820     		movs	r0, #40
-ARM GAS  /tmp/ccBmS00B.s 			page 11
+ARM GAS  /tmp/ccQK8XZ3.s 			page 11
 
 
  188 00c8 FFF7FEFF 		bl	HAL_NVIC_EnableIRQ
@@ -658,7 +658,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  235 0018 0092     		str	r2, [sp]
  327:Core/Src/main.c ****   __HAL_RCC_DMA1_CLK_ENABLE();
  236              		.loc 1 327 3 view .LVU61
-ARM GAS  /tmp/ccBmS00B.s 			page 12
+ARM GAS  /tmp/ccQK8XZ3.s 			page 12
 
 
  237 001a 009A     		ldr	r2, [sp]
@@ -718,7 +718,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  279              		@ sp needed
  280 0052 10BD     		pop	{r4, pc}
  281              	.L8:
-ARM GAS  /tmp/ccBmS00B.s 			page 13
+ARM GAS  /tmp/ccQK8XZ3.s 			page 13
 
 
  282              		.align	2
@@ -778,7 +778,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  332              		.loc 1 396 5 is_stmt 0 view .LVU80
  333 0000 8028     		cmp	r0, #128
  334 0002 00D0     		beq	.L18
-ARM GAS  /tmp/ccBmS00B.s 			page 14
+ARM GAS  /tmp/ccQK8XZ3.s 			page 14
 
 
  335 0004 7047     		bx	lr
@@ -838,7 +838,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  377              		.section	.text.HAL_UARTEx_RxEventCallback,"ax",%progbits
  378              		.align	1
  379              		.global	HAL_UARTEx_RxEventCallback
-ARM GAS  /tmp/ccBmS00B.s 			page 15
+ARM GAS  /tmp/ccQK8XZ3.s 			page 15
 
 
  380              		.syntax unified
@@ -898,7 +898,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  419              		.loc 1 417 28 view .LVU97
  420 0018 2B49     		ldr	r1, .L41+8
  421              	.LVL18:
-ARM GAS  /tmp/ccBmS00B.s 			page 16
+ARM GAS  /tmp/ccQK8XZ3.s 			page 16
 
 
  422              		.loc 1 417 28 view .LVU98
@@ -958,7 +958,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  436:Core/Src/main.c ****       break;
  437:Core/Src/main.c **** 
  438:Core/Src/main.c ****     } else if(ch == 127){ // see if input is DELETE
-ARM GAS  /tmp/ccBmS00B.s 			page 17
+ARM GAS  /tmp/ccQK8XZ3.s 			page 17
 
 
  439:Core/Src/main.c ****       command_idx = command_idx>1 ? command_idx-1 : 0;
@@ -1018,7 +1018,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  491 0058 2148     		ldr	r0, .L41+32
  492 005a FFF7FEFF 		bl	strcmp
  493              	.LVL26:
-ARM GAS  /tmp/ccBmS00B.s 			page 18
+ARM GAS  /tmp/ccQK8XZ3.s 			page 18
 
 
  426:Core/Src/main.c ****         //3
@@ -1078,7 +1078,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  535 0084 13F80C20 		ldrb	r2, [r3, ip]	@ zero_extendqisi2
  536              	.LVL30:
  414:Core/Src/main.c **** 
-ARM GAS  /tmp/ccBmS00B.s 			page 19
+ARM GAS  /tmp/ccQK8XZ3.s 			page 19
 
 
  537              		.loc 1 414 5 is_stmt 1 view .LVU134
@@ -1138,7 +1138,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  579 00c8 00000000 		.word	command
  580 00cc 00000000 		.word	.LC0
  581 00d0 00000000 		.word	is_raw
-ARM GAS  /tmp/ccBmS00B.s 			page 20
+ARM GAS  /tmp/ccQK8XZ3.s 			page 20
 
 
  582 00d4 00000000 		.word	input_buffer
@@ -1198,7 +1198,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
   17:Drivers/CMSIS/Include/cmsis_gcc.h ****  *
   18:Drivers/CMSIS/Include/cmsis_gcc.h ****  * Unless required by applicable law or agreed to in writing, software
   19:Drivers/CMSIS/Include/cmsis_gcc.h ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
-ARM GAS  /tmp/ccBmS00B.s 			page 21
+ARM GAS  /tmp/ccQK8XZ3.s 			page 21
 
 
   20:Drivers/CMSIS/Include/cmsis_gcc.h ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -1258,7 +1258,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
   74:Drivers/CMSIS/Include/cmsis_gcc.h ****   struct __attribute__((packed)) T_UINT32 { uint32_t v; };
   75:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
   76:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT32(x)                  (((struct T_UINT32 *)(x))->v)
-ARM GAS  /tmp/ccBmS00B.s 			page 22
+ARM GAS  /tmp/ccQK8XZ3.s 			page 22
 
 
   77:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
@@ -1318,7 +1318,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  131:Drivers/CMSIS/Include/cmsis_gcc.h **** __STATIC_FORCEINLINE __NO_RETURN void __cmsis_start(void)
  132:Drivers/CMSIS/Include/cmsis_gcc.h **** {
  133:Drivers/CMSIS/Include/cmsis_gcc.h ****   extern void _start(void) __NO_RETURN;
-ARM GAS  /tmp/ccBmS00B.s 			page 23
+ARM GAS  /tmp/ccQK8XZ3.s 			page 23
 
 
  134:Drivers/CMSIS/Include/cmsis_gcc.h **** 
@@ -1378,7 +1378,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  188:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
  189:Drivers/CMSIS/Include/cmsis_gcc.h **** 
  190:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef __TZ_STACK_SEAL_SIZE
-ARM GAS  /tmp/ccBmS00B.s 			page 24
+ARM GAS  /tmp/ccQK8XZ3.s 			page 24
 
 
  191:Drivers/CMSIS/Include/cmsis_gcc.h **** #define __TZ_STACK_SEAL_SIZE      8U
@@ -1438,7 +1438,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  245:Drivers/CMSIS/Include/cmsis_gcc.h **** /**
  246:Drivers/CMSIS/Include/cmsis_gcc.h ****   \brief   Send Event
  247:Drivers/CMSIS/Include/cmsis_gcc.h ****   \details Send Event is a hint instruction. It causes an event to be signaled to the CPU.
-ARM GAS  /tmp/ccBmS00B.s 			page 25
+ARM GAS  /tmp/ccQK8XZ3.s 			page 25
 
 
  248:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
@@ -1498,7 +1498,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  302:Drivers/CMSIS/Include/cmsis_gcc.h **** }
  303:Drivers/CMSIS/Include/cmsis_gcc.h **** 
  304:Drivers/CMSIS/Include/cmsis_gcc.h **** 
-ARM GAS  /tmp/ccBmS00B.s 			page 26
+ARM GAS  /tmp/ccQK8XZ3.s 			page 26
 
 
  305:Drivers/CMSIS/Include/cmsis_gcc.h **** /**
@@ -1558,7 +1558,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  359:Drivers/CMSIS/Include/cmsis_gcc.h ****   \details Causes the processor to enter Debug state.
  360:Drivers/CMSIS/Include/cmsis_gcc.h ****            Debug tools can use this to investigate system state when the instruction at a particula
  361:Drivers/CMSIS/Include/cmsis_gcc.h ****   \param [in]    value  is ignored by the processor.
-ARM GAS  /tmp/ccBmS00B.s 			page 27
+ARM GAS  /tmp/ccQK8XZ3.s 			page 27
 
 
  362:Drivers/CMSIS/Include/cmsis_gcc.h ****                  If required, a debugger can use it to store additional information about the break
@@ -1618,7 +1618,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  416:Drivers/CMSIS/Include/cmsis_gcc.h ****     return 32U;
  417:Drivers/CMSIS/Include/cmsis_gcc.h ****   }
  418:Drivers/CMSIS/Include/cmsis_gcc.h ****   return __builtin_clz(value);
-ARM GAS  /tmp/ccBmS00B.s 			page 28
+ARM GAS  /tmp/ccQK8XZ3.s 			page 28
 
 
  419:Drivers/CMSIS/Include/cmsis_gcc.h **** }
@@ -1678,7 +1678,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  473:Drivers/CMSIS/Include/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
  474:Drivers/CMSIS/Include/cmsis_gcc.h ****   \return        value of type uint32_t at (*ptr)
  475:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
-ARM GAS  /tmp/ccBmS00B.s 			page 29
+ARM GAS  /tmp/ccQK8XZ3.s 			page 29
 
 
  476:Drivers/CMSIS/Include/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __LDREXW(volatile uint32_t *addr)
@@ -1738,7 +1738,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  530:Drivers/CMSIS/Include/cmsis_gcc.h **** 
  531:Drivers/CMSIS/Include/cmsis_gcc.h ****    __ASM volatile ("strex %0, %2, %1" : "=&r" (result), "=Q" (*addr) : "r" (value) );
  532:Drivers/CMSIS/Include/cmsis_gcc.h ****    return(result);
-ARM GAS  /tmp/ccBmS00B.s 			page 30
+ARM GAS  /tmp/ccQK8XZ3.s 			page 30
 
 
  533:Drivers/CMSIS/Include/cmsis_gcc.h **** }
@@ -1798,7 +1798,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  587:Drivers/CMSIS/Include/cmsis_gcc.h ****   \brief   Rotate Right with Extend (32 bit)
  588:Drivers/CMSIS/Include/cmsis_gcc.h ****   \details Moves each bit of a bitstring right by one bit.
  589:Drivers/CMSIS/Include/cmsis_gcc.h ****            The carry input is shifted in at the left end of the bitstring.
-ARM GAS  /tmp/ccBmS00B.s 			page 31
+ARM GAS  /tmp/ccQK8XZ3.s 			page 31
 
 
  590:Drivers/CMSIS/Include/cmsis_gcc.h ****   \param [in]    value  Value to rotate
@@ -1858,7 +1858,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  644:Drivers/CMSIS/Include/cmsis_gcc.h **** 
  645:Drivers/CMSIS/Include/cmsis_gcc.h **** 
  646:Drivers/CMSIS/Include/cmsis_gcc.h **** /**
-ARM GAS  /tmp/ccBmS00B.s 			page 32
+ARM GAS  /tmp/ccQK8XZ3.s 			page 32
 
 
  647:Drivers/CMSIS/Include/cmsis_gcc.h ****   \brief   LDRT Unprivileged (32 bit)
@@ -1918,7 +1918,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  701:Drivers/CMSIS/Include/cmsis_gcc.h ****   \brief   Signed Saturate
  702:Drivers/CMSIS/Include/cmsis_gcc.h ****   \details Saturates a signed value.
  703:Drivers/CMSIS/Include/cmsis_gcc.h ****   \param [in]  value  Value to be saturated
-ARM GAS  /tmp/ccBmS00B.s 			page 33
+ARM GAS  /tmp/ccQK8XZ3.s 			page 33
 
 
  704:Drivers/CMSIS/Include/cmsis_gcc.h ****   \param [in]    sat  Bit position to saturate to (1..32)
@@ -1978,7 +1978,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  758:Drivers/CMSIS/Include/cmsis_gcc.h ****   \details Executes a LDAB instruction for 8 bit value.
  759:Drivers/CMSIS/Include/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
  760:Drivers/CMSIS/Include/cmsis_gcc.h ****   \return             value of type uint8_t at (*ptr)
-ARM GAS  /tmp/ccBmS00B.s 			page 34
+ARM GAS  /tmp/ccQK8XZ3.s 			page 34
 
 
  761:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
@@ -2038,7 +2038,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  815:Drivers/CMSIS/Include/cmsis_gcc.h ****   \details Executes a STLH instruction for 16 bit values.
  816:Drivers/CMSIS/Include/cmsis_gcc.h ****   \param [in]  value  Value to store
  817:Drivers/CMSIS/Include/cmsis_gcc.h ****   \param [in]    ptr  Pointer to location
-ARM GAS  /tmp/ccBmS00B.s 			page 35
+ARM GAS  /tmp/ccQK8XZ3.s 			page 35
 
 
  818:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
@@ -2098,7 +2098,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  872:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
  873:Drivers/CMSIS/Include/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __LDAEX(volatile uint32_t *ptr)
  874:Drivers/CMSIS/Include/cmsis_gcc.h **** {
-ARM GAS  /tmp/ccBmS00B.s 			page 36
+ARM GAS  /tmp/ccQK8XZ3.s 			page 36
 
 
  875:Drivers/CMSIS/Include/cmsis_gcc.h ****     uint32_t result;
@@ -2158,7 +2158,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  929:Drivers/CMSIS/Include/cmsis_gcc.h ****    return(result);
  930:Drivers/CMSIS/Include/cmsis_gcc.h **** }
  931:Drivers/CMSIS/Include/cmsis_gcc.h **** 
-ARM GAS  /tmp/ccBmS00B.s 			page 37
+ARM GAS  /tmp/ccQK8XZ3.s 			page 37
 
 
  932:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif /* ((defined (__ARM_ARCH_8M_MAIN__ ) && (__ARM_ARCH_8M_MAIN__ == 1)) || \
@@ -2218,7 +2218,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  631              		.align	1
  632              		.syntax unified
  633              		.thumb
-ARM GAS  /tmp/ccBmS00B.s 			page 38
+ARM GAS  /tmp/ccQK8XZ3.s 			page 38
 
 
  634              		.thumb_func
@@ -2278,7 +2278,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  309:Core/Src/main.c ****   if (HAL_UART_Init(&huart2) != HAL_OK)
  673              		.loc 1 309 28 is_stmt 0 view .LVU170
  674 001c C361     		str	r3, [r0, #28]
-ARM GAS  /tmp/ccBmS00B.s 			page 39
+ARM GAS  /tmp/ccQK8XZ3.s 			page 39
 
 
  310:Core/Src/main.c ****   {
@@ -2338,7 +2338,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  721 000e 1448     		ldr	r0, .L57
  722 0010 144A     		ldr	r2, .L57+4
  723 0012 0260     		str	r2, [r0]
-ARM GAS  /tmp/ccBmS00B.s 			page 40
+ARM GAS  /tmp/ccQK8XZ3.s 			page 40
 
 
  256:Core/Src/main.c ****   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
@@ -2398,7 +2398,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  757              		.loc 1 266 3 is_stmt 1 view .LVU201
  266:Core/Src/main.c ****   if (HAL_ADC_Init(&hadc1) != HAL_OK)
  758              		.loc 1 266 27 is_stmt 0 view .LVU202
-ARM GAS  /tmp/ccBmS00B.s 			page 41
+ARM GAS  /tmp/ccQK8XZ3.s 			page 41
 
 
  759 0034 4261     		str	r2, [r0, #20]
@@ -2458,7 +2458,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  798              		.loc 1 279 5 view .LVU217
  799 005c FFF7FEFF 		bl	Error_Handler
  800              	.LVL37:
-ARM GAS  /tmp/ccBmS00B.s 			page 42
+ARM GAS  /tmp/ccQK8XZ3.s 			page 42
 
 
  801              	.L58:
@@ -2518,7 +2518,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  849 001e 116C     		ldr	r1, [r2, #64]
  850 0020 41F08051 		orr	r1, r1, #268435456
  851 0024 1164     		str	r1, [r2, #64]
-ARM GAS  /tmp/ccBmS00B.s 			page 43
+ARM GAS  /tmp/ccQK8XZ3.s 			page 43
 
 
  199:Core/Src/main.c ****   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
@@ -2578,7 +2578,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  890              		.loc 1 208 3 is_stmt 1 view .LVU241
  208:Core/Src/main.c ****   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
  891              		.loc 1 208 34 is_stmt 0 view .LVU242
-ARM GAS  /tmp/ccBmS00B.s 			page 44
+ARM GAS  /tmp/ccQK8XZ3.s 			page 44
 
 
  892 0056 0D92     		str	r2, [sp, #52]
@@ -2638,7 +2638,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  927 0078 0391     		str	r1, [sp, #12]
  225:Core/Src/main.c ****   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
  928              		.loc 1 225 3 is_stmt 1 view .LVU262
-ARM GAS  /tmp/ccBmS00B.s 			page 45
+ARM GAS  /tmp/ccQK8XZ3.s 			page 45
 
 
  225:Core/Src/main.c ****   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
@@ -2698,7 +2698,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  972      256C750A 
  972      00
  973 0009 000000   		.align	2
-ARM GAS  /tmp/ccBmS00B.s 			page 46
+ARM GAS  /tmp/ccQK8XZ3.s 			page 46
 
 
  974              	.LC4:
@@ -2758,7 +2758,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  1016              		.loc 1 100 36 is_stmt 1 discriminator 3 view .LVU284
  100:Core/Src/main.c ****   for(int i=0; i<BUFFER_SIZE; i++) command[i]=0;
  1017              		.loc 1 100 51 is_stmt 0 discriminator 3 view .LVU285
-ARM GAS  /tmp/ccBmS00B.s 			page 47
+ARM GAS  /tmp/ccQK8XZ3.s 			page 47
 
 
  1018 0014 384A     		ldr	r2, .L81+12
@@ -2818,7 +2818,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  1059 0036 334A     		ldr	r2, .L81+24
  1060 0038 1370     		strb	r3, [r2]
  110:Core/Src/main.c **** 
-ARM GAS  /tmp/ccBmS00B.s 			page 48
+ARM GAS  /tmp/ccQK8XZ3.s 			page 48
 
 
  1061              		.loc 1 110 3 is_stmt 1 view .LVU299
@@ -2878,7 +2878,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  142:Core/Src/main.c ****     }
  1102              		.loc 1 142 13 is_stmt 0 view .LVU313
  1103 006e 1F4B     		ldr	r3, .L81
-ARM GAS  /tmp/ccBmS00B.s 			page 49
+ARM GAS  /tmp/ccQK8XZ3.s 			page 49
 
 
  1104 0070 0222     		movs	r2, #2
@@ -2912,7 +2912,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  1127 008e 03A8     		add	r0, sp, #12
  1128 0090 FFF7FEFF 		bl	memset
  1129              	.LVL58:
- 161:Core/Src/main.c ****     HAL_Delay(50);
+ 161:Core/Src/main.c ****     HAL_Delay(5);
  1130              		.loc 1 161 5 is_stmt 1 view .LVU319
  1131 0094 174B     		ldr	r3, .L81+8
  1132 0096 1B68     		ldr	r3, [r3]
@@ -2926,7 +2926,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  1140              	.LVL59:
  162:Core/Src/main.c ****     HAL_UART_Transmit(&huart2,buf,strlen(buf),20);
  1141              		.loc 1 162 5 view .LVU320
- 1142 00a8 2046     		mov	r0, r4
+ 1142 00a8 0520     		movs	r0, #5
  1143 00aa FFF7FEFF 		bl	HAL_Delay
  1144              	.LVL60:
  163:Core/Src/main.c ****     is_adc_ready = false;
@@ -2938,7 +2938,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  1149              	.LVL61:
  163:Core/Src/main.c ****     is_adc_ready = false;
  1150              		.loc 1 163 5 discriminator 1 view .LVU323
-ARM GAS  /tmp/ccBmS00B.s 			page 50
+ARM GAS  /tmp/ccQK8XZ3.s 			page 50
 
 
  1151 00b4 1423     		movs	r3, #20
@@ -2998,7 +2998,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  1193              		.loc 1 141 7 is_stmt 0 view .LVU335
  1194 00ea ECE7     		b	.L78
  1195              	.L82:
-ARM GAS  /tmp/ccBmS00B.s 			page 51
+ARM GAS  /tmp/ccQK8XZ3.s 			page 51
 
 
  1196              		.align	2
@@ -3058,7 +3058,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  1261      00000000 
  1261      00000000 
  1261      00000000 
-ARM GAS  /tmp/ccBmS00B.s 			page 52
+ARM GAS  /tmp/ccQK8XZ3.s 			page 52
 
 
  1262              		.global	Digital_Hall
@@ -3118,7 +3118,7 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  1312              		.file 9 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h"
  1313              		.file 10 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h"
  1314              		.file 11 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h"
-ARM GAS  /tmp/ccBmS00B.s 			page 53
+ARM GAS  /tmp/ccQK8XZ3.s 			page 53
 
 
  1315              		.file 12 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
@@ -3129,73 +3129,73 @@ ARM GAS  /tmp/ccBmS00B.s 			page 1
  1320              		.file 17 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h"
  1321              		.file 18 "/opt/gcc-arm-none-eabi/arm-none-eabi/include/stdio.h"
  1322              		.file 19 "<built-in>"
-ARM GAS  /tmp/ccBmS00B.s 			page 54
+ARM GAS  /tmp/ccQK8XZ3.s 			page 54
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 main.c
-     /tmp/ccBmS00B.s:21     .text.MX_GPIO_Init:00000000 $t
-     /tmp/ccBmS00B.s:26     .text.MX_GPIO_Init:00000000 MX_GPIO_Init
-     /tmp/ccBmS00B.s:198    .text.MX_GPIO_Init:000000d0 $d
-     /tmp/ccBmS00B.s:205    .text.MX_DMA_Init:00000000 $t
-     /tmp/ccBmS00B.s:210    .text.MX_DMA_Init:00000000 MX_DMA_Init
-     /tmp/ccBmS00B.s:284    .text.MX_DMA_Init:00000054 $d
-     /tmp/ccBmS00B.s:289    .text.HAL_ADC_ConvCpltCallback:00000000 $t
-     /tmp/ccBmS00B.s:295    .text.HAL_ADC_ConvCpltCallback:00000000 HAL_ADC_ConvCpltCallback
-     /tmp/ccBmS00B.s:313    .text.HAL_ADC_ConvCpltCallback:00000008 $d
-     /tmp/ccBmS00B.s:1234   .bss.is_adc_ready:00000000 is_adc_ready
-     /tmp/ccBmS00B.s:318    .text.HAL_GPIO_EXTI_Callback:00000000 $t
-     /tmp/ccBmS00B.s:324    .text.HAL_GPIO_EXTI_Callback:00000000 HAL_GPIO_EXTI_Callback
-     /tmp/ccBmS00B.s:362    .text.HAL_GPIO_EXTI_Callback:0000001c $d
-     /tmp/ccBmS00B.s:1267   .bss.Digital_Hall:00000000 Digital_Hall
-     /tmp/ccBmS00B.s:368    .rodata.HAL_UARTEx_RxEventCallback.str1.4:00000000 $d
-     /tmp/ccBmS00B.s:378    .text.HAL_UARTEx_RxEventCallback:00000000 $t
-     /tmp/ccBmS00B.s:384    .text.HAL_UARTEx_RxEventCallback:00000000 HAL_UARTEx_RxEventCallback
-     /tmp/ccBmS00B.s:577    .text.HAL_UARTEx_RxEventCallback:000000c0 $d
-     /tmp/ccBmS00B.s:1246   .bss.command_idx:00000000 command_idx
-     /tmp/ccBmS00B.s:1253   .bss.command:00000000 command
-     /tmp/ccBmS00B.s:1228   .bss.is_raw:00000000 is_raw
-     /tmp/ccBmS00B.s:1260   .bss.input_buffer:00000000 input_buffer
-     /tmp/ccBmS00B.s:1222   .bss.is_avg:00000000 is_avg
-     /tmp/ccBmS00B.s:1216   .bss.is_rnd:00000000 is_rnd
-     /tmp/ccBmS00B.s:593    .text.Error_Handler:00000000 $t
-     /tmp/ccBmS00B.s:599    .text.Error_Handler:00000000 Error_Handler
-     /tmp/ccBmS00B.s:631    .text.MX_USART2_UART_Init:00000000 $t
-     /tmp/ccBmS00B.s:636    .text.MX_USART2_UART_Init:00000000 MX_USART2_UART_Init
-     /tmp/ccBmS00B.s:690    .text.MX_USART2_UART_Init:0000002c $d
-     /tmp/ccBmS00B.s:1288   .bss.huart2:00000000 huart2
-     /tmp/ccBmS00B.s:696    .text.MX_ADC1_Init:00000000 $t
-     /tmp/ccBmS00B.s:701    .text.MX_ADC1_Init:00000000 MX_ADC1_Init
-     /tmp/ccBmS00B.s:804    .text.MX_ADC1_Init:00000060 $d
-     /tmp/ccBmS00B.s:1302   .bss.hadc1:00000000 hadc1
-     /tmp/ccBmS00B.s:811    .text.SystemClock_Config:00000000 $t
-     /tmp/ccBmS00B.s:817    .text.SystemClock_Config:00000000 SystemClock_Config
-     /tmp/ccBmS00B.s:964    .text.SystemClock_Config:0000009c $d
-     /tmp/ccBmS00B.s:970    .rodata.main.str1.4:00000000 $d
-     /tmp/ccBmS00B.s:977    .text.main:00000000 $t
-     /tmp/ccBmS00B.s:983    .text.main:00000000 main
-     /tmp/ccBmS00B.s:1198   .text.main:000000ec $d
-     /tmp/ccBmS00B.s:1240   .bss.STATE:00000000 STATE
-     /tmp/ccBmS00B.s:1274   .bss.Analog_Hall:00000000 Analog_Hall
-     /tmp/ccBmS00B.s:1217   .bss.is_rnd:00000000 $d
-     /tmp/ccBmS00B.s:1223   .bss.is_avg:00000000 $d
-     /tmp/ccBmS00B.s:1229   .bss.is_raw:00000000 $d
-     /tmp/ccBmS00B.s:1235   .bss.is_adc_ready:00000000 $d
-     /tmp/ccBmS00B.s:1241   .bss.STATE:00000000 $d
-     /tmp/ccBmS00B.s:1247   .bss.command_idx:00000000 $d
-     /tmp/ccBmS00B.s:1250   .bss.command:00000000 $d
-     /tmp/ccBmS00B.s:1257   .bss.input_buffer:00000000 $d
-     /tmp/ccBmS00B.s:1264   .bss.Digital_Hall:00000000 $d
-     /tmp/ccBmS00B.s:1271   .bss.Analog_Hall:00000000 $d
-     /tmp/ccBmS00B.s:1281   .bss.hdma_usart2_tx:00000000 hdma_usart2_tx
-     /tmp/ccBmS00B.s:1278   .bss.hdma_usart2_tx:00000000 $d
-ARM GAS  /tmp/ccBmS00B.s 			page 55
+     /tmp/ccQK8XZ3.s:21     .text.MX_GPIO_Init:00000000 $t
+     /tmp/ccQK8XZ3.s:26     .text.MX_GPIO_Init:00000000 MX_GPIO_Init
+     /tmp/ccQK8XZ3.s:198    .text.MX_GPIO_Init:000000d0 $d
+     /tmp/ccQK8XZ3.s:205    .text.MX_DMA_Init:00000000 $t
+     /tmp/ccQK8XZ3.s:210    .text.MX_DMA_Init:00000000 MX_DMA_Init
+     /tmp/ccQK8XZ3.s:284    .text.MX_DMA_Init:00000054 $d
+     /tmp/ccQK8XZ3.s:289    .text.HAL_ADC_ConvCpltCallback:00000000 $t
+     /tmp/ccQK8XZ3.s:295    .text.HAL_ADC_ConvCpltCallback:00000000 HAL_ADC_ConvCpltCallback
+     /tmp/ccQK8XZ3.s:313    .text.HAL_ADC_ConvCpltCallback:00000008 $d
+     /tmp/ccQK8XZ3.s:1234   .bss.is_adc_ready:00000000 is_adc_ready
+     /tmp/ccQK8XZ3.s:318    .text.HAL_GPIO_EXTI_Callback:00000000 $t
+     /tmp/ccQK8XZ3.s:324    .text.HAL_GPIO_EXTI_Callback:00000000 HAL_GPIO_EXTI_Callback
+     /tmp/ccQK8XZ3.s:362    .text.HAL_GPIO_EXTI_Callback:0000001c $d
+     /tmp/ccQK8XZ3.s:1267   .bss.Digital_Hall:00000000 Digital_Hall
+     /tmp/ccQK8XZ3.s:368    .rodata.HAL_UARTEx_RxEventCallback.str1.4:00000000 $d
+     /tmp/ccQK8XZ3.s:378    .text.HAL_UARTEx_RxEventCallback:00000000 $t
+     /tmp/ccQK8XZ3.s:384    .text.HAL_UARTEx_RxEventCallback:00000000 HAL_UARTEx_RxEventCallback
+     /tmp/ccQK8XZ3.s:577    .text.HAL_UARTEx_RxEventCallback:000000c0 $d
+     /tmp/ccQK8XZ3.s:1246   .bss.command_idx:00000000 command_idx
+     /tmp/ccQK8XZ3.s:1253   .bss.command:00000000 command
+     /tmp/ccQK8XZ3.s:1228   .bss.is_raw:00000000 is_raw
+     /tmp/ccQK8XZ3.s:1260   .bss.input_buffer:00000000 input_buffer
+     /tmp/ccQK8XZ3.s:1222   .bss.is_avg:00000000 is_avg
+     /tmp/ccQK8XZ3.s:1216   .bss.is_rnd:00000000 is_rnd
+     /tmp/ccQK8XZ3.s:593    .text.Error_Handler:00000000 $t
+     /tmp/ccQK8XZ3.s:599    .text.Error_Handler:00000000 Error_Handler
+     /tmp/ccQK8XZ3.s:631    .text.MX_USART2_UART_Init:00000000 $t
+     /tmp/ccQK8XZ3.s:636    .text.MX_USART2_UART_Init:00000000 MX_USART2_UART_Init
+     /tmp/ccQK8XZ3.s:690    .text.MX_USART2_UART_Init:0000002c $d
+     /tmp/ccQK8XZ3.s:1288   .bss.huart2:00000000 huart2
+     /tmp/ccQK8XZ3.s:696    .text.MX_ADC1_Init:00000000 $t
+     /tmp/ccQK8XZ3.s:701    .text.MX_ADC1_Init:00000000 MX_ADC1_Init
+     /tmp/ccQK8XZ3.s:804    .text.MX_ADC1_Init:00000060 $d
+     /tmp/ccQK8XZ3.s:1302   .bss.hadc1:00000000 hadc1
+     /tmp/ccQK8XZ3.s:811    .text.SystemClock_Config:00000000 $t
+     /tmp/ccQK8XZ3.s:817    .text.SystemClock_Config:00000000 SystemClock_Config
+     /tmp/ccQK8XZ3.s:964    .text.SystemClock_Config:0000009c $d
+     /tmp/ccQK8XZ3.s:970    .rodata.main.str1.4:00000000 $d
+     /tmp/ccQK8XZ3.s:977    .text.main:00000000 $t
+     /tmp/ccQK8XZ3.s:983    .text.main:00000000 main
+     /tmp/ccQK8XZ3.s:1198   .text.main:000000ec $d
+     /tmp/ccQK8XZ3.s:1240   .bss.STATE:00000000 STATE
+     /tmp/ccQK8XZ3.s:1274   .bss.Analog_Hall:00000000 Analog_Hall
+     /tmp/ccQK8XZ3.s:1217   .bss.is_rnd:00000000 $d
+     /tmp/ccQK8XZ3.s:1223   .bss.is_avg:00000000 $d
+     /tmp/ccQK8XZ3.s:1229   .bss.is_raw:00000000 $d
+     /tmp/ccQK8XZ3.s:1235   .bss.is_adc_ready:00000000 $d
+     /tmp/ccQK8XZ3.s:1241   .bss.STATE:00000000 $d
+     /tmp/ccQK8XZ3.s:1247   .bss.command_idx:00000000 $d
+     /tmp/ccQK8XZ3.s:1250   .bss.command:00000000 $d
+     /tmp/ccQK8XZ3.s:1257   .bss.input_buffer:00000000 $d
+     /tmp/ccQK8XZ3.s:1264   .bss.Digital_Hall:00000000 $d
+     /tmp/ccQK8XZ3.s:1271   .bss.Analog_Hall:00000000 $d
+     /tmp/ccQK8XZ3.s:1281   .bss.hdma_usart2_tx:00000000 hdma_usart2_tx
+     /tmp/ccQK8XZ3.s:1278   .bss.hdma_usart2_tx:00000000 $d
+ARM GAS  /tmp/ccQK8XZ3.s 			page 55
 
 
-     /tmp/ccBmS00B.s:1285   .bss.huart2:00000000 $d
-     /tmp/ccBmS00B.s:1295   .bss.hdma_adc1:00000000 hdma_adc1
-     /tmp/ccBmS00B.s:1292   .bss.hdma_adc1:00000000 $d
-     /tmp/ccBmS00B.s:1299   .bss.hadc1:00000000 $d
+     /tmp/ccQK8XZ3.s:1285   .bss.huart2:00000000 $d
+     /tmp/ccQK8XZ3.s:1295   .bss.hdma_adc1:00000000 hdma_adc1
+     /tmp/ccQK8XZ3.s:1292   .bss.hdma_adc1:00000000 $d
+     /tmp/ccQK8XZ3.s:1299   .bss.hadc1:00000000 $d
 
 UNDEFINED SYMBOLS
 HAL_GPIO_WritePin

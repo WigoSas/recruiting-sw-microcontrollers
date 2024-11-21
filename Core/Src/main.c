@@ -159,7 +159,7 @@ int main(void)
     while(!is_adc_ready);
     char buf[50] = {0};
     snprintf(buf,50,"%lu\t%lu\n",Analog_Hall,Digital_Hall);
-    HAL_Delay(50);
+    HAL_Delay(5);
     HAL_UART_Transmit(&huart2,buf,strlen(buf),20);
     is_adc_ready = false;
       break;
@@ -396,8 +396,7 @@ void HAL_GPIO_EXTI_Callback (uint16_t GPIO_Pin){
   if(GPIO_Pin == GPIO_PIN_7){
     Digital_Hall = HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_7) == GPIO_PIN_RESET ? 0 : 1;
   }
-  //
-  HAL_GPIO_TogglePin(LD2_GPIO_Port,LD2_Pin);
+  //HAL_GPIO_TogglePin(LD2_GPIO_Port,LD2_Pin);
   //Digital_Hall = Digital_Hall==1 ? 0 : 1;
   
 }
