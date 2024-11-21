@@ -137,10 +137,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-   //molto momentaneo
-    if(huart2.RxState == HAL_UART_STATE_READY){
-      STATE = APP_LISTENING;
-    }
 
     switch (STATE)
     {
@@ -149,6 +145,14 @@ int main(void)
       break;
 
     case APP_WAIT_REQUEST:
+    /*
+    since the command receive is always launched when the app is in WAIT_REQUEST and
+    it becomes available only when a command is accepted, the way to understand that
+    the state must change is when the huart receive is ready
+    */
+    if(huart2.RxState == HAL_UART_STATE_READY){ 
+      STATE = APP_LISTENING;
+    }
       break;
 
     case APP_LISTENING:
@@ -168,10 +172,10 @@ int main(void)
       break;
 
     case APP_WARNING:
+    HAL_UART_Transmit(&huart2,"WARNING\r\n",10,30);
       break;
 
     case APP_ERROR:
-    HAL_UART_Transmit(&huart2,"WARNING\r\n",10,30);
       break;
     
     default:
