@@ -7,9 +7,9 @@ Programs used:
 ### What works now?
 - CLI works, by inserting `raw`, `moving average` or `random noise` the program will accept the program and starts to send the data. Every other string will not work and the program will listen for a new command.
 
-- Data messaging, it is possible to receive data about the hall sensor
+- Data messaging, it is possible to receive data about the hall sensor filtered by the selected filter mode
 
 ### To do
 
-- Implementing the pause, warning and error states and their transitions
+- Implement the 5 second rule in LISTENING
 - Implementing the time peripheral and its usage

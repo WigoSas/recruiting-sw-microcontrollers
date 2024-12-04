@@ -34,11 +34,19 @@ typedef enum{
   APP_INIT, APP_WAIT_REQUEST, APP_LISTENING, APP_PAUSE, APP_WARNING, APP_ERROR
 } App_State;
 
+typedef enum{
+  FILTER_NONE, FILTER_RAW, FILTER_AVG, FILTER_RND
+} Filter_Type;
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define BUFFER_SIZE 30
+#define RECORDABLE_VALUES 150
+
+#define CHECK(res) if(res!=HAL_OK) State = APP_ERROR;
+#define BREAK_IF_ERROR() if(State==APP_ERROR) break;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -55,19 +63,29 @@ DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
 uint32_t Analog_Hall = 0;
+uint32_t Analog_Result = 0;
+uint32_t Analog_Array[RECORDABLE_VALUES] = {0};
+uint8_t Analog_Array_Length = 0;
+uint8_t Analog_Array_Index = 0;
+uint32_t Analog_Array_Sum = 0;
+
 uint32_t Digital_Hall = 0;
+uint8_t Digital_Result = 0;
+uint32_t Digital_Array[RECORDABLE_VALUES] = {0};
+uint8_t Digital_Array_Length = 0;
+uint8_t Digital_Array_Index = 0;
+uint32_t Digital_Array_Sum = 0;
 
 uint8_t input_buffer[BUFFER_SIZE] = {0};
 uint8_t command[BUFFER_SIZE] = {0};
 uint8_t command_idx = 0;
 
-App_State STATE = APP_INIT;
+App_State State = APP_INIT;
 
 bool is_adc_ready = false;
+bool request_state_change = false;
 
-  bool is_raw = false;
-  bool is_avg = false;
-  bool is_rnd = false;
+Filter_Type filter = FILTER_NONE;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -77,7 +95,9 @@ static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
-//void HAL_ADC_ConvCpltCallback();
+void resetSensorValues(void);
+void randomFilter(void);
+void movingAverage(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -93,17 +113,9 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-  STATE = APP_INIT;
-  //srand(time(NULL));
-  Analog_Hall = 0;
-  Digital_Hall = 0;
-  for(int i=0; i<BUFFER_SIZE; i++) input_buffer[i]=0;
-  for(int i=0; i<BUFFER_SIZE; i++) command[i]=0;
-  command_idx = 0;
-  is_adc_ready = false;
-  is_raw = false;
-  is_avg = false;
-  is_rnd = false;
+  State = APP_INIT;
+  srand(time(NULL));
+  
 
   /* USER CODE END 1 */
 
@@ -129,12 +141,6 @@ int main(void)
   MX_USART2_UART_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-
-  STATE = APP_WAIT_REQUEST;
-  if(HAL_UARTEx_ReceiveToIdle_IT(&huart2,input_buffer,sizeof(input_buffer))!=HAL_OK)
-  {
-    STATE = APP_ERROR;
-  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -142,46 +148,97 @@ int main(void)
   while (1)
   {
 
-    switch (STATE)
+    switch (State)
     {
     case APP_INIT:
-      /* in theory it should never go here */
+      for(int i=0; i<BUFFER_SIZE; i++) input_buffer[i]=0;
+      for(int i=0; i<BUFFER_SIZE; i++) command[i]=0;
+      command_idx = 0;
+
+      is_adc_ready = false;
+      request_state_change = false;
+      filter = FILTER_NONE;
+
+      State = APP_WAIT_REQUEST;
+      CHECK(HAL_UARTEx_ReceiveToIdle_IT(&huart2,input_buffer,sizeof(input_buffer)));
       break;
 
     case APP_WAIT_REQUEST:
-    /*
-    since the command receive is always launched when the app is in WAIT_REQUEST and
-    it becomes available only when a command is accepted, the way to understand that
-    the state must change is when the huart receive is ready
-    */
-    if(huart2.RxState == HAL_UART_STATE_READY){ 
-      STATE = APP_LISTENING;
-    }
+      if(request_state_change){ 
+        State = APP_LISTENING;
+        request_state_change = false;
+        resetSensorValues();
+        CHECK(HAL_UART_Abort(&huart2) );
+      }
       break;
 
     case APP_LISTENING:
-    //DMA conversion is not continuous, must be called every cycle
-    HAL_ADC_Start_DMA(&hadc1, &Analog_Hall, 1);
-    //READ DIGITAL
-    //APPLY FILTER
-    //SEND RESULTS
-    while(!is_adc_ready);
-    char buf[50] = {0};
-    snprintf(buf,50,"%lu\t%lu\n",Analog_Hall,Digital_Hall);
-    HAL_Delay(5);
-    HAL_UART_Transmit(&huart2,buf,strlen(buf),20);
-    is_adc_ready = false;
+      //DMA conversion is not continuous, must be called every cycle
+      CHECK(HAL_ADC_Start_DMA(&hadc1, &Analog_Hall, 1));
+      BREAK_IF_ERROR();
+      while(!is_adc_ready);
+
+      switch (filter)
+      {
+      case FILTER_AVG:
+        movingAverage();
+        break;
+
+      case FILTER_RND:
+        randomFilter();
+        break;
+
+      case FILTER_RAW:
+        Analog_Result = Analog_Hall;
+        Digital_Result = Digital_Hall;
+        break;
+    
+      default:
+        State = APP_ERROR;
+        break;
+      }
+      BREAK_IF_ERROR();
+
+      char buf[50] = {0};
+      snprintf(buf,50,"%lu\t%d\n",Analog_Result,Digital_Result);
+      CHECK(HAL_UART_Transmit(&huart2,(unsigned char *)buf,strlen(buf),20));
+      is_adc_ready = false;
+      HAL_Delay(5);
+
+      if(request_state_change){
+        request_state_change = false;
+        State = APP_PAUSE;
+        CHECK(HAL_UARTEx_ReceiveToIdle_IT(&huart2,input_buffer,sizeof(input_buffer)));
+      }
       break;
     
     case APP_PAUSE:
+      if(request_state_change){
+        request_state_change = false;
+        State = APP_LISTENING;
+        resetSensorValues();
+        CHECK(HAL_UART_Abort(&huart2) );
+      }
       break;
 
     case APP_WARNING:
-    HAL_UART_Transmit(&huart2,"WARNING\r\n",10,30);
+      HAL_UART_Transmit(&huart2,(unsigned char *)"WARNING\r\n",10,30);
+      HAL_Delay(250);
+      if(request_state_change){
+        request_state_change = false;
+        State = APP_WAIT_REQUEST;
+        CHECK(HAL_UARTEx_ReceiveToIdle_IT(&huart2,input_buffer,sizeof(input_buffer)));
+        resetSensorValues();
+      }
       break;
 
     case APP_ERROR:
-    HAL_UART_Transmit(&huart2,"ERROR\r\n",8,30);
+      HAL_UART_Transmit(&huart2,(unsigned char *)"ERROR\r\n",8,30);
+      HAL_Delay(250);
+      if(request_state_change){
+        request_state_change = false;
+        State = APP_INIT;
+      }
       break;
     
     default:
@@ -406,7 +463,12 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 // used to set the digital hall value
 void HAL_GPIO_EXTI_Callback (uint16_t GPIO_Pin){
   if(GPIO_Pin == GPIO_PIN_7){
-    Digital_Hall = HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_7) == GPIO_PIN_RESET ? 0 : 1;
+    Digital_Hall = HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_7) == GPIO_PIN_RESET ? 0 : 100;
+  }
+  else if(GPIO_Pin == B1_Pin){
+    /*if(State == APP_ERROR) HAL_NVIC_SystemReset();
+    else request_state_change = true; */ // idk if the request was this
+    request_state_change = true;
   }
   
 }
@@ -416,32 +478,23 @@ void HAL_GPIO_EXTI_Callback (uint16_t GPIO_Pin){
 // or char by char like on a terminal
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 
-  bool has_ended = false;
-
   for(int i=0; i<Size; i++){
     uint8_t ch = input_buffer[i];
 
     if(ch == '\0' || ch == '\n' || ch == '\r' || command_idx == BUFFER_SIZE-1){ // accept command
 
-      bool is_bad = false;
       command[command_idx] = '\0';
-      if(strncmp("raw",command,4) == 0){
-        //1
-        is_raw = true;
-
-      } else if(strncmp("moving average",command,15) == 0){
-        //2
-        is_avg = true;
-
-      } else if(strncmp("random noise",command,13) == 0){
-        //3
-        is_rnd = true;
-
-      } else {
-        is_bad = true;
-      }
+      if(strncmp("raw",(char *)command,4) == 0) filter = FILTER_RAW;
+      else if(strncmp("moving average",(char *)command,15) == 0) filter = FILTER_AVG;
+      else if(strncmp("random noise",(char *)command,13) == 0)filter = FILTER_RND;
+      else filter = FILTER_NONE;
+      //to let people know what they typed
+      char buf[50] = {0};
+      snprintf(buf,50,"Received!: %s\n",command);
+      HAL_UART_Transmit(&huart2,(unsigned char*)buf,strlen(buf),50);
+      
       command_idx = 0;
-      if(!is_bad) has_ended = true;
+      for(int i=0; i<BUFFER_SIZE; i++) command[i]=0;
       break;
 
     } else if(ch == 127){ // see if input is DELETE
@@ -452,11 +505,62 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
       command_idx++;
     } // else ignore
   }
+  HAL_UARTEx_ReceiveToIdle_IT(huart, input_buffer,BUFFER_SIZE);
+}
 
-  //if no terminating char (\0,\n,\r) is sent nor command is incorrect, listen again
-  if(!has_ended){
-    HAL_UARTEx_ReceiveToIdle_IT(huart, input_buffer,BUFFER_SIZE);
+
+void resetSensorValues(void){
+  Analog_Hall = 0;
+  Analog_Result = 0;
+  for(int i=0; i<RECORDABLE_VALUES; i++) Analog_Array[i] = 0;
+  Analog_Array_Length = 0;
+  Analog_Array_Index = 0;
+  Analog_Array_Sum = 0;
+
+  Digital_Hall = 0;
+  Digital_Result = 0;
+  for(int i=0; i<RECORDABLE_VALUES; i++) Digital_Array[i] = 0;
+  Digital_Array_Length = 0;
+  Digital_Array_Index = 0;
+  Digital_Array_Sum = 0;
+}
+
+void randomFilter(void){
+  //10% variation of analog results
+  uint16_t val = rand()%400;
+  if(val >= 200) {
+    uint16_t new_value = Analog_Hall+val-200;
+    Analog_Result = 4095 >= new_value ? new_value : 4095;
   }
+  else {
+    val = 200 - val;
+    Analog_Result = Analog_Hall >= val ? Analog_Hall - val : 0;
+  }
+
+  if(val == 399) Digital_Result = 100;
+  else if(val == 0) Digital_Result = 0;
+  else Digital_Result = Digital_Hall;
+}
+
+
+void movingAverage(void){
+  //Eliminate the 151th last value, since ArrayIdx points to the next 
+  //value to be removed. Even if a 151th value doesn't exist, the subtraction
+  // doesn't harm because for it to not have such value, it must be reset
+  // If it was reset then all values forward are zero
+  Analog_Array_Sum -= Analog_Array[Analog_Array_Index]; 
+  Analog_Array_Sum += Analog_Hall;
+  Analog_Array[Analog_Array_Index] = Analog_Hall;
+  Analog_Array_Index = (Analog_Array_Index+1)%RECORDABLE_VALUES;
+  if(Analog_Array_Length < RECORDABLE_VALUES) Analog_Array_Length++;
+  Analog_Result = Analog_Array_Sum / Analog_Array_Length;
+
+  Digital_Array_Sum -= Digital_Array[Digital_Array_Index];
+  Digital_Array_Sum += Digital_Hall;
+  Digital_Array[Digital_Array_Index] = Digital_Hall;
+  Digital_Array_Index = (Digital_Array_Index+1)%RECORDABLE_VALUES;
+  if(Digital_Array_Length < RECORDABLE_VALUES) Digital_Array_Length++;
+  Digital_Result = Digital_Array_Sum / Digital_Array_Length;
 }
 /* USER CODE END 4 */
 
