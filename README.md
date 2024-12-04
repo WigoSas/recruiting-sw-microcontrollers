@@ -9,7 +9,9 @@ Programs used:
 
 - Data messaging, it is possible to receive data about the hall sensor filtered by the selected filter mode
 
+- Led works except as expected
+
 ### To do
 
-- Implement the 5 second rule in LISTENING
-- Implementing the time peripheral and its usage
+- Make the 5 second rule not to be accumulative
+- Implementing audio

@@ -58,6 +58,9 @@ typedef enum{
 ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
+TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim3;
+
 UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart2_tx;
 
@@ -82,6 +85,8 @@ uint8_t command_idx = 0;
 
 App_State State = APP_INIT;
 
+uint8_t timer_counter = 0;
+
 bool is_adc_ready = false;
 bool request_state_change = false;
 
@@ -94,6 +99,8 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_ADC1_Init(void);
+static void MX_TIM3_Init(void);
+static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 void resetSensorValues(void);
 void randomFilter(void);
@@ -140,6 +147,8 @@ int main(void)
   MX_DMA_Init();
   MX_USART2_UART_Init();
   MX_ADC1_Init();
+  MX_TIM3_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   /* USER CODE END 2 */
 
@@ -158,12 +167,15 @@ int main(void)
       is_adc_ready = false;
       request_state_change = false;
       filter = FILTER_NONE;
+      timer_counter = 0;
 
       State = APP_WAIT_REQUEST;
+      //CHECK(HAL_TIM_Base_Start_IT(&htim3));
       CHECK(HAL_UARTEx_ReceiveToIdle_IT(&huart2,input_buffer,sizeof(input_buffer)));
       break;
 
     case APP_WAIT_REQUEST:
+      HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_RESET);
       if(request_state_change){ 
         State = APP_LISTENING;
         request_state_change = false;
@@ -176,6 +188,7 @@ int main(void)
       //DMA conversion is not continuous, must be called every cycle
       CHECK(HAL_ADC_Start_DMA(&hadc1, &Analog_Hall, 1));
       BREAK_IF_ERROR();
+      HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_SET);
       while(!is_adc_ready);
 
       switch (filter)
@@ -208,6 +221,7 @@ int main(void)
       if(request_state_change){
         request_state_change = false;
         State = APP_PAUSE;
+        CHECK(HAL_TIM_Base_Start_IT(&htim3));
         CHECK(HAL_UARTEx_ReceiveToIdle_IT(&huart2,input_buffer,sizeof(input_buffer)));
       }
       break;
@@ -217,7 +231,8 @@ int main(void)
         request_state_change = false;
         State = APP_LISTENING;
         resetSensorValues();
-        CHECK(HAL_UART_Abort(&huart2) );
+        CHECK(HAL_UART_Abort(&huart2));
+        CHECK(HAL_TIM_Base_Stop_IT(&htim3));
       }
       break;
 
@@ -233,11 +248,13 @@ int main(void)
       break;
 
     case APP_ERROR:
+      if(htim3.State==HAL_TIM_STATE_READY) HAL_TIM_Base_Start_IT(&htim3);
       HAL_UART_Transmit(&huart2,(unsigned char *)"ERROR\r\n",8,30);
       HAL_Delay(250);
       if(request_state_change){
         request_state_change = false;
         State = APP_INIT;
+        CHECK(HAL_TIM_Base_Stop_IT(&htim3));
       }
       break;
     
@@ -352,6 +369,96 @@ static void MX_ADC1_Init(void)
 }
 
 /**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM2_Init(void)
+{
+
+  /* USER CODE BEGIN TIM2_Init 0 */
+
+  /* USER CODE END TIM2_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM2_Init 1 */
+
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 8400;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 50000;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM2_Init 2 */
+
+  /* USER CODE END TIM2_Init 2 */
+
+}
+
+/**
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM3_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+
+  /* USER CODE END TIM3_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 8400;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 1000;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM3_Init 2 */
+
+  /* USER CODE END TIM3_Init 2 */
+
+}
+
+/**
   * @brief USART2 Initialization Function
   * @param None
   * @retval None
@@ -460,14 +567,50 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
   is_adc_ready = true;
 }
 
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+  if(htim->Instance == htim2.Instance){
+    State = APP_WARNING;
+    CHECK(HAL_TIM_Base_Stop_IT(htim));
+    HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_RESET);
+  }
+  else if (htim->Instance == htim3.Instance){
+    switch (State)
+    {
+    case APP_PAUSE:
+    timer_counter++;
+      if(timer_counter%10 == 0){
+        HAL_GPIO_TogglePin(LD2_GPIO_Port,LD2_Pin);
+        if(timer_counter==20) timer_counter = 0;
+      }
+      break;
+
+    case APP_ERROR:
+    timer_counter++;
+      if(timer_counter%2 == 0){
+        HAL_GPIO_TogglePin(LD2_GPIO_Port,LD2_Pin);
+        if(timer_counter==4) timer_counter = 0;
+      }
+    
+    default:
+      break;
+    }
+  }
+  
+}
+
 // used to set the digital hall value
 void HAL_GPIO_EXTI_Callback (uint16_t GPIO_Pin){
-  if(GPIO_Pin == GPIO_PIN_7){
+  if(GPIO_Pin == GPIO_PIN_7 && State == APP_LISTENING){
     Digital_Hall = HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_7) == GPIO_PIN_RESET ? 0 : 100;
+    if(Digital_Hall==100){
+      CHECK(HAL_TIM_Base_Start_IT(&htim2));
+    } else {
+      CHECK(HAL_TIM_Base_Stop_IT(&htim2));
+    }
   }
   else if(GPIO_Pin == B1_Pin){
-    /*if(State == APP_ERROR) HAL_NVIC_SystemReset();
-    else request_state_change = true; */ // idk if the request was this
+    /*if(State == APP_ERROR) HAL_NVIC_SystemReset(); // idk if the request was this
+    else request_state_change = true; */ 
     request_state_change = true;
   }
   
@@ -492,7 +635,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
       char buf[50] = {0};
       snprintf(buf,50,"Received!: %s\n",command);
       HAL_UART_Transmit(&huart2,(unsigned char*)buf,strlen(buf),50);
-      
+
       command_idx = 0;
       for(int i=0; i<BUFFER_SIZE; i++) command[i]=0;
       break;
