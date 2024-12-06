@@ -37,21 +37,19 @@ typedef enum{
 typedef enum{
   FILTER_NONE, FILTER_RAW, FILTER_AVG, FILTER_RND
 } Filter_Type;
-
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BUFFER_SIZE 30
-#define RECORDABLE_VALUES 150
-
-#define CHECK(res) if(res!=HAL_OK) State = APP_ERROR;
-#define BREAK_IF_ERROR() if(State==APP_ERROR) break;
+#define BUFFER_SIZE 30 // for cli input
+#define RECORDABLE_VALUES 150 // for sensor value recording
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+#define CHECK(res) if(res!=HAL_OK) {State = APP_ERROR;}
+#define BREAK_IF_ERROR() if(State==APP_ERROR) {break;}
+#define STOP_5SEC_TIMER() CHECK(HAL_TIM_Base_Stop_IT(&htim2)); __HAL_TIM_SET_COUNTER(&htim2,1);
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -65,32 +63,38 @@ UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
-uint32_t Analog_Hall = 0;
-uint32_t Analog_Result = 0;
-uint32_t Analog_Array[RECORDABLE_VALUES] = {0};
-uint8_t Analog_Array_Length = 0;
-uint8_t Analog_Array_Index = 0;
-uint32_t Analog_Array_Sum = 0;
+typedef struct {
+  uint32_t hall;
+  uint32_t result;
+  uint32_t array[RECORDABLE_VALUES];
+  uint8_t array_length;
+  uint8_t array_index;
+  uint32_t array_sum;
+} Sensor_result_container;
 
-uint32_t Digital_Hall = 0;
-uint8_t Digital_Result = 0;
-uint32_t Digital_Array[RECORDABLE_VALUES] = {0};
-uint8_t Digital_Array_Length = 0;
-uint8_t Digital_Array_Index = 0;
-uint32_t Digital_Array_Sum = 0;
+Sensor_result_container analog = {0};
+Sensor_result_container digital = {0};
 
-uint8_t input_buffer[BUFFER_SIZE] = {0};
-uint8_t command[BUFFER_SIZE] = {0};
+uint8_t input_buffer[BUFFER_SIZE] = {0}; //uart buffer
+uint8_t command[BUFFER_SIZE] = {0}; //it contains all received chars from cli, even if sent one at a time
 uint8_t command_idx = 0;
 
 App_State State = APP_INIT;
 
-uint8_t timer_counter = 0;
+uint8_t timer_counter = 0; // for flashing led, it counts how many times 100ms passed
 
 bool is_adc_ready = false;
 bool request_state_change = false;
+bool is_warning = false;
+bool first_time_timer = true; // to avoid triggering warning when you start it the first time
 
 Filter_Type filter = FILTER_NONE;
+
+//for debugging purposes
+/*char READY[] = "RDY\n";
+char BUSY[] = "BSY\n";
+char UNKNOWN[] = "IDK\n";
+uint32_t count = 0;*/
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -163,14 +167,15 @@ int main(void)
       for(int i=0; i<BUFFER_SIZE; i++) input_buffer[i]=0;
       for(int i=0; i<BUFFER_SIZE; i++) command[i]=0;
       command_idx = 0;
+      //count = 0; for debugging purposes
 
       is_adc_ready = false;
       request_state_change = false;
+      is_warning = false;
       filter = FILTER_NONE;
       timer_counter = 0;
 
       State = APP_WAIT_REQUEST;
-      //CHECK(HAL_TIM_Base_Start_IT(&htim3));
       CHECK(HAL_UARTEx_ReceiveToIdle_IT(&huart2,input_buffer,sizeof(input_buffer)));
       break;
 
@@ -186,7 +191,7 @@ int main(void)
 
     case APP_LISTENING:
       //DMA conversion is not continuous, must be called every cycle
-      CHECK(HAL_ADC_Start_DMA(&hadc1, &Analog_Hall, 1));
+      CHECK(HAL_ADC_Start_DMA(&hadc1, &analog.hall, 1));
       BREAK_IF_ERROR();
       HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_SET);
       while(!is_adc_ready);
@@ -202,8 +207,8 @@ int main(void)
         break;
 
       case FILTER_RAW:
-        Analog_Result = Analog_Hall;
-        Digital_Result = Digital_Hall;
+        analog.result = analog.hall;
+        digital.result = digital.hall;
         break;
     
       default:
@@ -212,8 +217,9 @@ int main(void)
       }
       BREAK_IF_ERROR();
 
+      //we send data in serial in the format "<analog> <digital>\n"
       char buf[50] = {0};
-      snprintf(buf,50,"%lu\t%d\n",Analog_Result,Digital_Result);
+      snprintf(buf,50,"%lu\t%lu\n",analog.result,digital.result);
       CHECK(HAL_UART_Transmit(&huart2,(unsigned char *)buf,strlen(buf),20));
       is_adc_ready = false;
       HAL_Delay(5);
@@ -223,6 +229,16 @@ int main(void)
         State = APP_PAUSE;
         CHECK(HAL_TIM_Base_Start_IT(&htim3));
         CHECK(HAL_UARTEx_ReceiveToIdle_IT(&huart2,input_buffer,sizeof(input_buffer)));
+        STOP_5SEC_TIMER();
+        filter = FILTER_NONE;
+      }
+
+      if(is_warning){
+        is_warning = false;
+        State = APP_WARNING;
+        STOP_5SEC_TIMER();
+        HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_RESET);
+        filter = FILTER_NONE;
       }
       break;
     
@@ -237,7 +253,7 @@ int main(void)
       break;
 
     case APP_WARNING:
-      HAL_UART_Transmit(&huart2,(unsigned char *)"WARNING\r\n",10,30);
+      CHECK(HAL_UART_Transmit(&huart2,(unsigned char *)"WARNING\r\n",10,30));
       HAL_Delay(250);
       if(request_state_change){
         request_state_change = false;
@@ -249,6 +265,7 @@ int main(void)
 
     case APP_ERROR:
       if(htim3.State==HAL_TIM_STATE_READY) HAL_TIM_Base_Start_IT(&htim3);
+      STOP_5SEC_TIMER();
       HAL_UART_Transmit(&huart2,(unsigned char *)"ERROR\r\n",8,30);
       HAL_Delay(250);
       if(request_state_change){
@@ -261,6 +278,20 @@ int main(void)
     default:
       break;
     }
+    
+    // for debugging purposes
+    /*char* point;
+    if(htim2.State == HAL_TIM_STATE_READY){point = READY;}
+    else if(htim2.State == HAL_TIM_STATE_BUSY){point = BUSY;}
+    else {point = UNKNOWN;}
+    if(State == APP_PAUSE || State == APP_WAIT_REQUEST){
+      count++;
+      if(count==250000){
+        HAL_UART_Transmit(&huart2,(unsigned char*)point,4,20);
+        count = 0;
+      }
+    } else HAL_UART_Transmit(&huart2,(unsigned char*)point,4,20);*/
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -562,16 +593,17 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
 //to know that the ADC conversion is over
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
   is_adc_ready = true;
 }
 
+//for TIM2(5sec high value timer) and TIM3 (led flasher timer)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-  if(htim->Instance == htim2.Instance){
-    State = APP_WARNING;
-    CHECK(HAL_TIM_Base_Stop_IT(htim));
-    HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_RESET);
+  if(State == APP_LISTENING && htim->Instance == htim2.Instance){
+    if(first_time_timer) first_time_timer = false;
+    else is_warning = true;
   }
   else if (htim->Instance == htim3.Instance){
     switch (State)
@@ -600,12 +632,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 // used to set the digital hall value
 void HAL_GPIO_EXTI_Callback (uint16_t GPIO_Pin){
-  if(GPIO_Pin == GPIO_PIN_7 && State == APP_LISTENING){
-    Digital_Hall = HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_7) == GPIO_PIN_RESET ? 0 : 100;
-    if(Digital_Hall==100){
+  if(State == APP_LISTENING && GPIO_Pin == GPIO_PIN_7){
+    digital.hall = HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_7) == GPIO_PIN_RESET ? 0 : 100;
+    if(digital.hall==100){
       CHECK(HAL_TIM_Base_Start_IT(&htim2));
     } else {
-      CHECK(HAL_TIM_Base_Stop_IT(&htim2));
+      STOP_5SEC_TIMER();
     }
   }
   else if(GPIO_Pin == B1_Pin){
@@ -653,36 +685,36 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 
 
 void resetSensorValues(void){
-  Analog_Hall = 0;
-  Analog_Result = 0;
-  for(int i=0; i<RECORDABLE_VALUES; i++) Analog_Array[i] = 0;
-  Analog_Array_Length = 0;
-  Analog_Array_Index = 0;
-  Analog_Array_Sum = 0;
+  analog.hall = 0;
+  analog.result = 0;
+  for(int i=0; i<RECORDABLE_VALUES; i++) analog.array[i] = 0;
+  analog.array_length = 0;
+  analog.array_index = 0;
+  analog.array_sum = 0;
 
-  Digital_Hall = 0;
-  Digital_Result = 0;
-  for(int i=0; i<RECORDABLE_VALUES; i++) Digital_Array[i] = 0;
-  Digital_Array_Length = 0;
-  Digital_Array_Index = 0;
-  Digital_Array_Sum = 0;
+  digital.hall = 0;
+  digital.result = 0;
+  for(int i=0; i<RECORDABLE_VALUES; i++) digital.array[i] = 0;
+  digital.array_length = 0;
+  digital.array_index = 0;
+  digital.array_sum = 0;
 }
 
 void randomFilter(void){
   //10% variation of analog results
   uint16_t val = rand()%400;
   if(val >= 200) {
-    uint16_t new_value = Analog_Hall+val-200;
-    Analog_Result = 4095 >= new_value ? new_value : 4095;
+    uint16_t new_value = analog.hall+val-200;
+    analog.result = 4095 >= new_value ? new_value : 4095;
   }
   else {
     val = 200 - val;
-    Analog_Result = Analog_Hall >= val ? Analog_Hall - val : 0;
+    analog.result = analog.hall >= val ? analog.hall - val : 0;
   }
 
-  if(val == 399) Digital_Result = 100;
-  else if(val == 0) Digital_Result = 0;
-  else Digital_Result = Digital_Hall;
+  if(val == 399) digital.result = 100;
+  else if(val == 0) digital.result = 0;
+  else digital.result = digital.hall;
 }
 
 
@@ -691,19 +723,19 @@ void movingAverage(void){
   //value to be removed. Even if a 151th value doesn't exist, the subtraction
   // doesn't harm because for it to not have such value, it must be reset
   // If it was reset then all values forward are zero
-  Analog_Array_Sum -= Analog_Array[Analog_Array_Index]; 
-  Analog_Array_Sum += Analog_Hall;
-  Analog_Array[Analog_Array_Index] = Analog_Hall;
-  Analog_Array_Index = (Analog_Array_Index+1)%RECORDABLE_VALUES;
-  if(Analog_Array_Length < RECORDABLE_VALUES) Analog_Array_Length++;
-  Analog_Result = Analog_Array_Sum / Analog_Array_Length;
+  analog.array_sum -= analog.array[analog.array_index]; 
+  analog.array_sum += analog.hall;
+  analog.array[analog.array_index] = analog.hall;
+  analog.array_index = (analog.array_index+1)%RECORDABLE_VALUES;
+  if(analog.array_length < RECORDABLE_VALUES) analog.array_length++;
+  analog.result = analog.array_sum / analog.array_length;
 
-  Digital_Array_Sum -= Digital_Array[Digital_Array_Index];
-  Digital_Array_Sum += Digital_Hall;
-  Digital_Array[Digital_Array_Index] = Digital_Hall;
-  Digital_Array_Index = (Digital_Array_Index+1)%RECORDABLE_VALUES;
-  if(Digital_Array_Length < RECORDABLE_VALUES) Digital_Array_Length++;
-  Digital_Result = Digital_Array_Sum / Digital_Array_Length;
+  digital.array_sum -= digital.array[digital.array_index];
+  digital.array_sum += digital.hall;
+  digital.array[digital.array_index] = digital.hall;
+  digital.array_index = (digital.array_index+1)%RECORDABLE_VALUES;
+  if(digital.array_length < RECORDABLE_VALUES) digital.array_length++;
+  digital.result = digital.array_sum / digital.array_length;
 }
 /* USER CODE END 4 */
 
