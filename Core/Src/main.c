@@ -43,6 +43,7 @@ typedef enum{
 /* USER CODE BEGIN PD */
 #define BUFFER_SIZE 30 // for cli input
 #define RECORDABLE_VALUES 150 // for sensor value recording
+#define POTENTIOMETER_THRESHOLD 2047 
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -87,6 +88,7 @@ bool is_adc_ready = false;
 bool request_state_change = false;
 bool is_warning = false;
 bool first_time_timer = true; // to avoid triggering warning when you start it the first time
+bool is_hall_sensor = true; //true if it's a sensor hall, false if it's a potentiometer
 
 Filter_Type filter = FILTER_NONE;
 
@@ -109,6 +111,7 @@ static void MX_TIM2_Init(void);
 void resetSensorValues(void);
 void randomFilter(void);
 void movingAverage(void);
+void simulateDigitalForPotentiometer(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -172,6 +175,7 @@ int main(void)
       is_adc_ready = false;
       request_state_change = false;
       is_warning = false;
+      is_hall_sensor = true;
       filter = FILTER_NONE;
       timer_counter = 0;
 
@@ -216,6 +220,9 @@ int main(void)
         break;
       }
       BREAK_IF_ERROR();
+
+      //TEMP: check analog result to simulate digital
+      if(!is_hall_sensor) simulateDigitalForPotentiometer();
 
       //we send data in serial in the format "<analog> <digital>\n"
       char buf[50] = {0};
@@ -631,8 +638,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 }
 
 // used to set the digital hall value
+//The EXTI callback for digital input is only used when in hall sensor mode
 void HAL_GPIO_EXTI_Callback (uint16_t GPIO_Pin){
-  if(State == APP_LISTENING && GPIO_Pin == GPIO_PIN_7){
+  if(State == APP_LISTENING && GPIO_Pin == GPIO_PIN_7 && is_hall_sensor){
+
     digital.hall = HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_7) == GPIO_PIN_RESET ? 0 : 100;
     if(digital.hall==100){
       CHECK(HAL_TIM_Base_Start_IT(&htim2));
@@ -661,7 +670,9 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
       command[command_idx] = '\0';
       if(strncmp("raw",(char *)command,4) == 0) filter = FILTER_RAW;
       else if(strncmp("moving average",(char *)command,15) == 0) filter = FILTER_AVG;
-      else if(strncmp("random noise",(char *)command,13) == 0)filter = FILTER_RND;
+      else if(strncmp("random noise",(char *)command,13) == 0) filter = FILTER_RND;
+      else if(strncmp("hall",(char *)command,5)) is_hall_sensor = true;
+      else if(strncmp("potentiometer",(char *)command,14)) is_hall_sensor = false;
       else filter = FILTER_NONE;
       //to let people know what they typed
       char buf[50] = {0};
@@ -736,6 +747,15 @@ void movingAverage(void){
   digital.array_index = (digital.array_index+1)%RECORDABLE_VALUES;
   if(digital.array_length < RECORDABLE_VALUES) digital.array_length++;
   digital.result = digital.array_sum / digital.array_length;
+}
+
+//WORK ON THIS
+void simulateDigitalForPotentiometer(void){
+  if(analog.result > POTENTIOMETER_THRESHOLD){
+    digital.result = 100;
+  } else{
+    digital.result = 0;
+  }
 }
 /* USER CODE END 4 */
 

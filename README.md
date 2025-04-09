@@ -11,5 +11,8 @@ Programs used:
 
 - Led works except as expected, as well as the 5 sec rule
 
+#### ADDITION TO project
+- The program will work with either a hall sensor or a potentiometer, and the default setting is hall. You can switch from one mode to the other by typing `hall` or `potentiometer` in the CLI. The default is hall. The difference between the two modes is that, since potentiometers don't have a digital output, the MC will simulate it using the analog value with a threshold of 2047.
+
 ### To do
 - Implementing audio
