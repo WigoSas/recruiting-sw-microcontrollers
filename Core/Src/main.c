@@ -87,7 +87,7 @@ uint8_t timer_counter = 0; // for flashing led, it counts how many times 100ms p
 bool is_adc_ready = false;
 bool request_state_change = false;
 bool is_warning = false;
-bool first_time_timer = true; // to avoid triggering warning when you start it the first time
+bool first_time_timer = true; // to avoid triggering warning when you start it the first time from flash
 bool is_hall_sensor = true; //true if it's a sensor hall, false if it's a potentiometer
 
 Filter_Type filter = FILTER_NONE;
@@ -200,6 +200,8 @@ int main(void)
       HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin,GPIO_PIN_SET);
       while(!is_adc_ready);
 
+      if(!is_hall_sensor) simulateDigitalForPotentiometer();
+
       switch (filter)
       {
       case FILTER_AVG:
@@ -220,9 +222,6 @@ int main(void)
         break;
       }
       BREAK_IF_ERROR();
-
-      //TEMP: check analog result to simulate digital
-      if(!is_hall_sensor) simulateDigitalForPotentiometer();
 
       //we send data in serial in the format "<analog> <digital>\n"
       char buf[50] = {0};
@@ -260,7 +259,7 @@ int main(void)
       break;
 
     case APP_WARNING:
-      CHECK(HAL_UART_Transmit(&huart2,(unsigned char *)"WARNING\r\n",10,30));
+      CHECK(HAL_UART_Transmit(&huart2,(unsigned char *)"WARNING\r\n",9,30));
       HAL_Delay(250);
       if(request_state_change){
         request_state_change = false;
@@ -273,7 +272,7 @@ int main(void)
     case APP_ERROR:
       if(htim3.State==HAL_TIM_STATE_READY) HAL_TIM_Base_Start_IT(&htim3);
       STOP_5SEC_TIMER();
-      HAL_UART_Transmit(&huart2,(unsigned char *)"ERROR\r\n",8,30);
+      HAL_UART_Transmit(&huart2,(unsigned char *)"ERROR\r\n",7,30);
       HAL_Delay(250);
       if(request_state_change){
         request_state_change = false;
@@ -638,8 +637,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 }
 
 // used to set the digital hall value
-//The EXTI callback for digital input is only used when in hall sensor mode
 void HAL_GPIO_EXTI_Callback (uint16_t GPIO_Pin){
+
+  //The EXTI callback for digital input is only used when in hall sensor mode
   if(State == APP_LISTENING && GPIO_Pin == GPIO_PIN_7 && is_hall_sensor){
 
     digital.hall = HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_7) == GPIO_PIN_RESET ? 0 : 100;
@@ -671,8 +671,8 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
       if(strncmp("raw",(char *)command,4) == 0) filter = FILTER_RAW;
       else if(strncmp("moving average",(char *)command,15) == 0) filter = FILTER_AVG;
       else if(strncmp("random noise",(char *)command,13) == 0) filter = FILTER_RND;
-      else if(strncmp("hall",(char *)command,5)) is_hall_sensor = true;
-      else if(strncmp("potentiometer",(char *)command,14)) is_hall_sensor = false;
+      else if(strncmp("hall",(char *)command,5) == 0) is_hall_sensor = true;
+      else if(strncmp("potentiometer",(char *)command,14) == 0) is_hall_sensor = false;
       else filter = FILTER_NONE;
       //to let people know what they typed
       char buf[50] = {0};
@@ -713,19 +713,19 @@ void resetSensorValues(void){
 
 void randomFilter(void){
   //10% variation of analog results
-  uint16_t val = rand()%400;
-  if(val >= 200) {
-    uint16_t new_value = analog.hall+val-200;
+  int val = (rand()%400)-200;
+
+  
+  if(val > 189) digital.result = 100;
+  else if(val < -190) digital.result = 0;
+  else digital.result = digital.hall;
+
+  if(val >= 0) {
+    uint16_t new_value = analog.hall+val;
     analog.result = 4095 >= new_value ? new_value : 4095;
   }
-  else {
-    val = 200 - val;
-    analog.result = analog.hall >= val ? analog.hall - val : 0;
-  }
+  else analog.result = analog.hall >= -val ? analog.hall + val : 0;
 
-  if(val == 399) digital.result = 100;
-  else if(val == 0) digital.result = 0;
-  else digital.result = digital.hall;
 }
 
 
@@ -751,10 +751,19 @@ void movingAverage(void){
 
 //WORK ON THIS
 void simulateDigitalForPotentiometer(void){
-  if(analog.result > POTENTIOMETER_THRESHOLD){
-    digital.result = 100;
+  if(analog.hall > POTENTIOMETER_THRESHOLD){
+
+    digital.hall = 100;
+    if(htim2.State == HAL_TIM_STATE_READY){ //only when it's read you start it, otherwise you get HAL_ERROR
+      CHECK(HAL_TIM_Base_Start_IT(&htim2))
+    }
+    else if(htim2.State == HAL_TIM_STATE_BUSY); //don't do anything, it's already doing its honest work
+    else State = APP_ERROR;
+
   } else{
-    digital.result = 0;
+
+    digital.hall = 0;
+    STOP_5SEC_TIMER()
   }
 }
 /* USER CODE END 4 */
