@@ -1,3 +1,4 @@
 .vscode/
 build/
 correct-flash-file.ld
+audiopart/

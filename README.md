@@ -11,8 +11,10 @@ Programs used:
 
 - Led works except as expected, as well as the 5 sec rule
 
+- An additional executable compiled from audio_modulation uses the miniaudio library. A sine wave is produced from the analog values, ranging an octave. Noise's amplitude comes instead from the digital value. To correctly open the program specify the serial port used. E.g. `./audio.out ttyACM0`, and to correctly close it, use Ctrl-C
+
 #### ADDITION TO project
 - The program will work with either a hall sensor or a potentiometer, and the default setting is hall. You can switch from one mode to the other by typing `hall` or `potentiometer` in the CLI. The default is hall. The difference between the two modes is that, since potentiometers don't have a digital output, the MC will simulate it using the analog value with a threshold of 2047.
 
-### To do
-- Implementing audio
+### to do
+- more thorough testing and documenting
