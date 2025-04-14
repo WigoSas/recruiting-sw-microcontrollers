@@ -18,8 +18,6 @@
 #define DEVICE_CHANNELS     2
 #define DEVICE_SAMPLE_RATE  48000
 
-int c1 = 0;
-int c2 = 0;
 int gl_analog = 0;
 int gl_digital = 0;
 
